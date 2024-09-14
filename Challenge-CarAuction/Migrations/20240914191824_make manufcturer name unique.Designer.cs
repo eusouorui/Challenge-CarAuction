@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Challenge_CarAuction.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20240914152338_Creat database")]
-    partial class Creatdatabase
+    [Migration("20240914191824_make manufcturer name unique")]
+    partial class makemanufcturernameunique
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,9 +115,12 @@ namespace Challenge_CarAuction.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Manufacturers");
                 });

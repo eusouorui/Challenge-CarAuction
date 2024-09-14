@@ -8,7 +8,6 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AuctionDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnectionString")));
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

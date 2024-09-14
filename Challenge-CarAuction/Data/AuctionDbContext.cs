@@ -36,6 +36,10 @@ namespace ChallengeCarAuction
                 .WithMany(m => m.Cars)
                 .HasForeignKey(c => c.ModelId);
 
+            // unique fields
+            modelBuilder.Entity<Manufacturer>()
+                .HasIndex(m => m.Name)
+                .IsUnique();
         }
     }
 }
