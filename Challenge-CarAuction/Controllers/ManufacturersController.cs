@@ -116,19 +116,8 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                    bool existsInDb = _context.Manufacturers.Any(m => m.Name.Equals(manufacturer.Name));
-
-                    if (existsInDb)
-                    {
-                        // Entity exists, show a message
-                        ViewBag.AlertMessage = $"An entity named {manufacturer.Name} already exists.";
-                        return View(manufacturer);
-                    }
-                    else
-                    {
                         _context.Update(manufacturer);
                         await _context.SaveChangesAsync();
-                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
