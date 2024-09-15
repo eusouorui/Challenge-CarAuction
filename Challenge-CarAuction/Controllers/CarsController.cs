@@ -121,6 +121,7 @@ namespace Challenge_CarAuction.Controllers
 
                 try
                 {
+                    car.HasActiveAuction = car.HasActiveAuction ?? false;
                     _context.Update(car);
                     await _context.SaveChangesAsync();
                 }
