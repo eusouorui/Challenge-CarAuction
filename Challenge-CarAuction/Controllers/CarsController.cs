@@ -19,6 +19,14 @@ namespace Challenge_CarAuction.Controllers
         public async Task<IActionResult> Index()
         {
             var auctionDbContext = _context.Cars.Include(c => c.Model);
+
+            var manufacturers = _context.Manufacturers.ToList();
+
+            foreach(var item in auctionDbContext)
+            {
+                item.Manufacturer = manufacturers.Where(m => m.Id == item.Model.ManufacturerId).FirstOrDefault();
+            }
+
             return View(await auctionDbContext.ToListAsync());
         }
 
@@ -176,6 +184,34 @@ namespace Challenge_CarAuction.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Filter: Cars/Filter/(filters)
+        [HttpGet, ActionName("Filter")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Filter(int modelYear)
+        {
+            // Apply filters to your data retrieval logic
+            var cars = _context.Cars.AsQueryable();
+
+            //if (!string.IsNullOrEmpty(manufacturer))
+            //{
+            //    cars = cars.Where(c => c.Manufacturer.Contains(manufacturer));
+            //}
+
+            //if (!string.IsNullOrEmpty(model))
+            //{
+            //    cars = cars.Where(c => c.Model.Contains(model));
+            //}
+
+            //if (year.HasValue)
+            //{
+            //    cars = cars.Where(c => c.Year == year.Value);
+            //}
+
+            return View(cars.ToList());
+        }
+
+        #region Private Methods
+
         private bool CarExists(int id)
         {
             return _context.Cars.Any(e => e.Id == id);
@@ -243,5 +279,7 @@ namespace Challenge_CarAuction.Controllers
 
             return string.Empty;
         }
+
+        #endregion
     }
 }

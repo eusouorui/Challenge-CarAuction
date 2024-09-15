@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ChallengeCarAuction.Models
 {
@@ -25,5 +26,8 @@ namespace ChallengeCarAuction.Models
         public int ModelId { get; set; }
 
         public Model? Model { get; set; }
+
+        [NotMapped]
+        public Manufacturer? Manufacturer { get; set; }
     }
 }

@@ -7,7 +7,12 @@
     <RootNamespace>Challenge_CarAuction</RootNamespace>
   </PropertyGroup>
 
-	<ItemGroup>
+  <ItemGroup>
+		<PackageReference Include="DataTables.AspNet.Mvc5" Version="2.0.2" />
+		<PackageReference Include="datatables.net-dt" Version="2.1.6" />
+		<PackageReference Include="datatables.net-searchbuilder-dt" Version="1.8.0" />
+		<PackageReference Include="datatables.net-searchpanes-dt" Version="2.3.2" />
+		<PackageReference Include="jQuery" Version="3.7.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">

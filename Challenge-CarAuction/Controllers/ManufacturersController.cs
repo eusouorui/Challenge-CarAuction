@@ -65,7 +65,6 @@ namespace Challenge_CarAuction.Controllers
                     }
                     else
                     {
-
                         _context.Add(manufacturer);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));

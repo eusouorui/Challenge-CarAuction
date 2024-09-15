@@ -1,7 +1,10 @@
-﻿@model IEnumerable<ChallengeCarAuction.Models.Car>
+﻿@using Azure.Core
+@model IEnumerable<ChallengeCarAuction.Models.Car>;
 
 @{
     ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+
 }
 
 <h1>Index</h1>
@@ -9,7 +12,8 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+
+<table id="carTable" class="display table">
     <thead>
         <tr>
             <th>
@@ -19,19 +23,19 @@
                 @Html.DisplayNameFor(model => model.VehicleType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.HasActiveAuction)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.StartingBid)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NumberOfDoors)
+                Doors
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NumberOfSeats)
+                Seats
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.LoadCapacity)
+            </th>
+            <th>
+                Manufacturer
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Model)
@@ -49,9 +53,6 @@
                 @Html.DisplayFor(modelItem => item.VehicleType)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HasActiveAuction)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.StartingBid)
             </td>
             <td>
@@ -62,6 +63,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LoadCapacity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Manufacturer.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Model.Name)
