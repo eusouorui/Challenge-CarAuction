@@ -12,7 +12,6 @@ namespace ChallengeCarAuction.Models
         // external values
 
         public int ManufacturerId { get; set; }
-        public Manufacturer Manufacturer { get; set; }
-        public ICollection<Car> Cars { get; set; }
+        public virtual Manufacturer? Manufacturer { get; set; }
     }
 }

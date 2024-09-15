@@ -32,9 +32,7 @@ namespace ChallengeCarAuction
 
             // One-to-Many relationship between Model and Cars
             modelBuilder.Entity<Car>()
-                .HasOne(c => c.Model)
-                .WithMany(m => m.Cars)
-                .HasForeignKey(c => c.ModelId);
+                .HasOne(c => c.Model);
 
             // unique fields
             modelBuilder.Entity<Manufacturer>()

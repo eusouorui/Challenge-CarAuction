@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Challenge_CarAuction.Migrations
 {
     [DbContext(typeof(AuctionDbContext))]
-    [Migration("20240914191824_make manufcturer name unique")]
-    partial class makemanufcturernameunique
+    [Migration("20240915114755_correct mode relationshp")]
+    partial class correctmoderelationshp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,7 +172,7 @@ namespace Challenge_CarAuction.Migrations
             modelBuilder.Entity("ChallengeCarAuction.Models.Car", b =>
                 {
                     b.HasOne("ChallengeCarAuction.Models.Model", "Model")
-                        .WithMany("Cars")
+                        .WithMany()
                         .HasForeignKey("ModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -199,11 +199,6 @@ namespace Challenge_CarAuction.Migrations
             modelBuilder.Entity("ChallengeCarAuction.Models.Manufacturer", b =>
                 {
                     b.Navigation("Models");
-                });
-
-            modelBuilder.Entity("ChallengeCarAuction.Models.Model", b =>
-                {
-                    b.Navigation("Cars");
                 });
 #pragma warning restore 612, 618
         }
