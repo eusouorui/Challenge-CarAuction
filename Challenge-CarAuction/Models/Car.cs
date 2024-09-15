@@ -11,19 +11,19 @@ namespace ChallengeCarAuction.Models
 
         public VehicleType VehicleType { get; set; }
 
-        public bool HasActiveAuction { get; set; }
+        public bool? HasActiveAuction { get; set; }
 
         public decimal StartingBid { get; set; }
 
-        public int NumberOfDoors { get; set; }
+        public int? NumberOfDoors { get; set; }
 
-        public int NumberOfSeats { get; set; }
+        public int? NumberOfSeats { get; set; }
 
-        public decimal LoadCapacity { get; set; }
+        public decimal? LoadCapacity { get; set; }
 
         // External propertiies / keys
         public int ModelId { get; set; }
 
-        public Model Model { get; set; }
+        public Model? Model { get; set; }
     }
 }

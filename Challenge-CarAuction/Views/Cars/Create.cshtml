@@ -1,0 +1,70 @@
+﻿@model ChallengeCarAuction.Models.Car
+
+@{
+    ViewData["Title"] = "Create";
+
+    if (!string.IsNullOrEmpty(ViewBag.AlertMessage))
+    {
+        <text>
+            <script>
+                alert('@ViewBag.AlertMessage');
+            </script>
+        </text>
+    }
+}
+
+<h1>Create</h1>
+
+<h4>Car</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ModelYear" class="control-label"></label>
+                <input asp-for="ModelYear" class="form-control" />
+                <span asp-validation-for="ModelYear" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="VehicleType" class="control-label"></label>
+                <select asp-for="VehicleType" class="form-control" asp-items="ViewBag.VehicleTypes"></select>
+                <span asp-validation-for="VehicleType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartingBid" class="control-label"></label>
+                <input asp-for="StartingBid" class="form-control" />
+                <span asp-validation-for="StartingBid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfDoors" class="control-label"></label>
+                <input asp-for="NumberOfDoors" class="form-control" />
+                <span asp-validation-for="NumberOfDoors" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfSeats" class="control-label"></label>
+                <input asp-for="NumberOfSeats" class="form-control" />
+                <span asp-validation-for="NumberOfSeats" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LoadCapacity" class="control-label"></label>
+                <input asp-for="LoadCapacity" class="form-control" />
+                <span asp-validation-for="LoadCapacity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label  asp-for="ModelId" class="control-label">Model</label>
+                <select asp-for="ModelId" class="form-control" asp-items="ViewBag.Models"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
