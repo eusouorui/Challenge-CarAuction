@@ -48,10 +48,17 @@ namespace Challenge_CarAuction.Controllers
             var auction = await _context.Auctions
                 .Include(a => a.Car)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
+            
             if (auction == null)
             {
                 return NotFound();
             }
+
+            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault();
+            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault();
+
+            auction.Car.Model.Name = $"{manufacturer.Name} {model.Name}";
 
             return View(auction);
         }
@@ -75,15 +82,10 @@ namespace Challenge_CarAuction.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(auction);
+                var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
+                car.HasActiveAuction = auction.IsActive;
+                _context.Update(car);
                 await _context.SaveChangesAsync();
-
-                if(auction.IsActive)
-                {
-                    var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
-                    car.HasActiveAuction = auction.IsActive;
-                    await _context.SaveChangesAsync();
-                }
-                
 
                 return RedirectToAction(nameof(Index));
             }
@@ -103,7 +105,13 @@ namespace Challenge_CarAuction.Controllers
             {
                 return NotFound();
             }
-            ViewData["CarId"] = new SelectList(_context.Cars, "Id", "Id", auction.CarId);
+
+            var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
+            car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
+            car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
+
+            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name } };
+            ViewData["IsActive"] = CheckIfCarHasActiveAcution(auction) || auction.IsActive;
             return View(auction);
         }
 
@@ -119,12 +127,21 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
+            var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
+            car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
+            car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
+
+            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name } };
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(auction);
+                    car.HasActiveAuction = auction.IsActive;
+                    _context.Update(car);
                     await _context.SaveChangesAsync();
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -139,7 +156,7 @@ namespace Challenge_CarAuction.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CarId"] = new SelectList(_context.Cars, "Id", "Id", auction.CarId);
+            
             return View(auction);
         }
 
@@ -159,6 +176,11 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
+            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault();
+            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault();
+
+            auction.Car.Model.Name = $"{manufacturer.Name} {model.Name}";
+
             return View(auction);
         }
 
@@ -173,6 +195,16 @@ namespace Challenge_CarAuction.Controllers
                 _context.Auctions.Remove(auction);
             }
 
+            if(auction.IsActive)
+            {
+                var car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
+                if(car.HasActiveAuction == true) 
+                {
+                    car.HasActiveAuction = false;
+                    _context.Update(car);
+                }
+            }
+            
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -208,6 +240,13 @@ namespace Challenge_CarAuction.Controllers
             }
 
             return selectListView;
+        }
+
+        private bool CheckIfCarHasActiveAcution(Auction auction)
+        {
+            var car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
+
+            return car.HasActiveAuction == true;
         }
     }
 }
