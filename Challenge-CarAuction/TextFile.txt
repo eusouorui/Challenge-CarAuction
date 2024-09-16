@@ -11,10 +11,15 @@ Considering this logic it would make more sense for the starting bid to be defin
 
 If something that I have or have not explained in here does not feel right please do question it and I will try to explain.
 
-Barriers:
+Simplifications:
 
 For the given task of a "simple" car auction application smoe corners were cut. Specifically on the frontend, as I used datatables.net for the frontend sorting, filtering, etc. 
 Also, bids being under the "details" option in the Auction is not optimal as well design wise.
+
+Bids should have had their own controller and their views handled as partial views inside of the Auction Details view, respecting the single responsability priniple as far as the controllers are concerned.
+However, to prioritize logic and delievering all the features, I handled them inside the Auctions controller.
+
+Soft deletes and timestamps were not implemented, but could have been.
 
 Testing:
 
