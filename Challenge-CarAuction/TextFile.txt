@@ -1,0 +1,21 @@
+﻿Nice to haves:
+
+Cache so data access is quicker
+
+
+Assumptions:
+
+In this case license plates and VIN numbers are not being considered. However, I developed the logic assuming that in the case they would, the same car could be auctioned today and maybe in the future, as so, the application can handle two auctions of the same car. However, only one can be active at a time.
+Also, for any specific reason, an auction can be abandoned, disabled and a new one created for the same car.
+Considering this logic it would make more sense for the starting bid to be defined in the auction and not the car entity. However, following the given instructions it was defined in the car entity.
+
+If something that I have or have not explained in here does not feel right please do question it and I will try to explain.
+
+Barriers:
+
+For the given task of a "simple" car auction application smoe corners were cut. Specifically on the frontend, as I used datatables.net for the frontend sorting, filtering, etc. 
+Also, bids being under the "details" option in the Auction is not optimal as well design wise.
+
+Testing:
+
+This being a simple application no integration tests were performed.

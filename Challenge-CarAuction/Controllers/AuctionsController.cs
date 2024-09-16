@@ -55,6 +55,7 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
+            var car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
             var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault();
             var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault();
 
@@ -110,8 +111,9 @@ namespace Challenge_CarAuction.Controllers
             car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
             car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
 
-            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name } };
-            ViewData["IsActive"] = CheckIfCarHasActiveAcution(auction) || auction.IsActive;
+            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name, Value = car.Id.ToString()} };
+
+            ViewData["IsActive"] = CheckIfCarHasActiveAcution(auction) && !auction.IsActive;
             return View(auction);
         }
 
@@ -131,7 +133,7 @@ namespace Challenge_CarAuction.Controllers
             car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
             car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
 
-            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name } };
+            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name, Value = car.Id.ToString() } };
 
             if (ModelState.IsValid)
             {
