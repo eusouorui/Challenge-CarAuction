@@ -38,6 +38,14 @@ namespace ChallengeCarAuction
             modelBuilder.Entity<Manufacturer>()
                 .HasIndex(m => m.Name)
                 .IsUnique();
+
+            // One-To-One relationship between Auction and Car
+            modelBuilder.Entity<Auction>()
+                .HasOne(a => a.Car);
+            
+            // One-To-Many relationship between Auction and Bids
+            modelBuilder.Entity<Auction>()
+                .HasMany(a => a.AuctionBids);
         }
     }
 }
