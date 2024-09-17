@@ -58,27 +58,22 @@ namespace Challenge_CarAuction.Controllers
                 .Include(a => a.Car)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-
             if (auction == null)
             {
                 return NotFound();
             }
 
-            auction.Car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
-            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault();
-            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault();
+            auction.AuctionBids = _context.Bids.Where(b => b.AuctionId == auction.Id).ToList();
+
+            auction.Car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId) ?? new Car();
+            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault() ?? new Model();
+            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault() ?? new Manufacturer();
 
             auction.Car.Model.Name = $"{manufacturer.Name} {model.Name}";
 
+            var AlertMessage = TempData["AlertMessage"] as string;
 
-            auction.AuctionBids = [];
-
-            for (int i = 1; i <= 3; i++)
-            {
-                auction.AuctionBids.Add(new Bid { Value = i * auction.Car.StartingBid });
-            }
-
-
+            ViewData["AlertMessage"] = AlertMessage;
             ViewData["CarInfoName"] = GetCarInfoPropertyName(auction.Car);
             ViewData["CarInfo"] = GetCarInfo(auction.Car);
 

@@ -4,6 +4,15 @@
 
 @{
     ViewData["Title"] = "Details";
+
+    if (!string.IsNullOrEmpty(ViewBag.AlertMessage))
+    {
+        <text>
+            <script>
+                    alert('@ViewBag.AlertMessage');
+            </script>
+        </text>
+    }
 }
 
 <h1>Details</h1>

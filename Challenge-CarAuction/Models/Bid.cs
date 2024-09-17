@@ -8,12 +8,10 @@ namespace ChallengeCarAuction.Models
         public int Id { get; set; }
 
         public decimal Value { get; set; }
-        
-        public Auction Auction { get; set; }
 
-        public Bid()
-        {
-            Auction = new Auction();
-        }
+        // External values
+        public int AuctionId { get; set; }
+        
+        public Auction? Auction { get; set; }
     }
 }

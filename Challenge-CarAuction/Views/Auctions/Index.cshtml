@@ -14,6 +14,9 @@
     <thead>
         <tr>
             <th>
+                Active
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Car.ModelYear)
             </th>
             <th>
@@ -25,9 +28,6 @@
             <th>
                 Property
             </th>
-            <th>
-                Active
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -35,6 +35,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsActiveText)
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Car.ModelYear)
 
@@ -47,9 +50,6 @@
                 </td>
                 <td>
                     @ViewBag.CarInfo[index]
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsActiveText)
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>
