@@ -10,5 +10,10 @@ namespace ChallengeCarAuction.Models
         public decimal Value { get; set; }
         
         public Auction Auction { get; set; }
+
+        public Bid()
+        {
+            Auction = new Auction();
+        }
     }
 }

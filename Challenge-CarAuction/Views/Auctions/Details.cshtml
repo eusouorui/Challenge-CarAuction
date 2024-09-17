@@ -1,4 +1,6 @@
-﻿@model ChallengeCarAuction.Models.Auction
+﻿@using ChallengeCarAuction.Models
+@using Challenge_CarAuction.Models.ViewModels
+@model ChallengeCarAuction.Models.Auction
 
 @{
     ViewData["Title"] = "Details";
@@ -10,17 +12,29 @@
     <h4>Auction</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.IsActive)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.IsActive)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Car)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Car.Model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            Vehicle type
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Car.VehicleType)
+        </dd>
+        <dt class="col-sm-2">
+            @ViewBag.CarInfoName
+        </dt>
+        <dd class="col-sm-10">
+            @ViewBag.CarInfo
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Car.StartingBid)
@@ -29,11 +43,39 @@
             @Html.DisplayFor(model => model.Car.StartingBid)
         </dd>
     </dl>
+    @if (!Model.IsActive)
+    {
+        <span style="color: red">Bidding is unavailable as Auction is not active.</span>
+    }
+    else
+    {
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" value="@Html.ValueForModel(Model.Id.ToString())" />
+            <input type="hidden" asp-for="IsActive" value="@Html.ValueForModel(false.ToString())" />
+            <input type="hidden" asp-for="CarId" class="form-control" value="@Html.ValueForModel(Model.CarId.ToString())"></input>
+
+            <div class="form-group">
+                <input type="submit" value="Terminate" class="btn btn-danger" />
+            </div>
+        </form>
+
+        <div id="bids-section">
+            @{
+                var viewModel = new BidsViewModel
+                {
+                    Bids = Model.AuctionBids ?? new(),
+                    Bid = new Bid
+                    {
+                        Auction = Model
+                    },
+                    StartingBid = Model.Car.StartingBid
+                };
+
+            }
+            @Html.Partial("_BidsPartial", viewModel)
+        </div>
+    }
 </div>
 <div>
     <a asp-action="Index">Back to List</a>
-
-    <div id="bids-section">
-        @Html.Partial("_BidsPartial", Model.AuctionBids)    
-    </div>
 </div>

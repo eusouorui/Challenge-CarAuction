@@ -5,22 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Challenge_CarAuction.Controllers
 {
-    public class ManufacturersController : Controller
+    public class BidsController : Controller
     {
         private readonly AuctionDbContext _context;
 
-        public ManufacturersController(AuctionDbContext context)
+        public BidsController(AuctionDbContext context)
         {
             _context = context;
         }
 
-        // GET: Manufacturers
-        public async Task<IActionResult> Index()
+        // GET: Bids
+        public async Task<IActionResult> Index(int id)
         {
-            return View(await _context.Manufacturers.ToListAsync());
+            return View(await _context.Bids.Where(x => x.Auction.Id == id).ToListAsync());
         }
 
-        // GET: Manufacturers/Details/5
+        // GET: Bids/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -28,57 +28,39 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers
+            var bid = await _context.Bids
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (manufacturer == null)
+            if (bid == null)
             {
                 return NotFound();
             }
 
-            return View(manufacturer);
+            return View(bid);
         }
 
-        // GET: Manufacturers/Create
+        // GET: Bids/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Manufacturers/Create
+        // POST: Bids/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Manufacturer manufacturer)
+        public async Task<IActionResult> Create([Bind("Id,Value")] Bid bid)
         {
             if (ModelState.IsValid)
             {
-                try
-                {
-                    bool existsInDb = _context.Manufacturers.Any(m => m.Name.Equals(manufacturer.Name));
-
-                    if (existsInDb)
-                    {
-                        // Entity exists, show a message
-                        ViewBag.AlertMessage = $"An entity named {manufacturer.Name} already exists.";
-                        return View(manufacturer);
-                    }
-                    else
-                    {
-                        _context.Add(manufacturer);
-                        await _context.SaveChangesAsync();
-                        return RedirectToAction(nameof(Index));
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
+                _context.Add(bid);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-            return View(manufacturer);
+            return View(bid);
         }
 
-        // GET: Manufacturers/Edit/5
+        // GET: Bids/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -86,22 +68,22 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers.FindAsync(id);
-            if (manufacturer == null)
+            var bid = await _context.Bids.FindAsync(id);
+            if (bid == null)
             {
                 return NotFound();
             }
-            return View(manufacturer);
+            return View(bid);
         }
 
-        // POST: Manufacturers/Edit/5
+        // POST: Bids/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Manufacturer manufacturer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Value")] Bid bid)
         {
-            if (id != manufacturer.Id)
+            if (id != bid.Id)
             {
                 return NotFound();
             }
@@ -110,12 +92,12 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                        _context.Update(manufacturer);
-                        await _context.SaveChangesAsync();
+                    _context.Update(bid);
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ManufacturerExists(manufacturer.Id))
+                    if (!BidExists(bid.Id))
                     {
                         return NotFound();
                     }
@@ -126,10 +108,10 @@ namespace Challenge_CarAuction.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(manufacturer);
+            return View(bid);
         }
 
-        // GET: Manufacturers/Delete/5
+        // GET: Bids/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -137,34 +119,34 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers
+            var bid = await _context.Bids
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (manufacturer == null)
+            if (bid == null)
             {
                 return NotFound();
             }
 
-            return View(manufacturer);
+            return View(bid);
         }
 
-        // POST: Manufacturers/Delete/5
+        // POST: Bids/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var manufacturer = await _context.Manufacturers.FindAsync(id);
-            if (manufacturer != null)
+            var bid = await _context.Bids.FindAsync(id);
+            if (bid != null)
             {
-                _context.Manufacturers.Remove(manufacturer);
+                _context.Bids.Remove(bid);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ManufacturerExists(int id)
+        private bool BidExists(int id)
         {
-            return _context.Manufacturers.Any(e => e.Id == id);
+            return _context.Bids.Any(e => e.Id == id);
         }
     }
 }
