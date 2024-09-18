@@ -1,7 +1,6 @@
-using Challenge_CarAuction.Data;
 using Challenge_CarAuction.Data.Repositories;
 using ChallengeCarAuction;
-using ChallengeCarAuction.Data.Repository;
+using ChallengeCarAuction.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +13,7 @@ builder.Services.AddDbContext<AuctionDbContext>(options => options.UseSqlServer(
 // Add repository (for many, could be done in bulk)
 builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
 builder.Services.AddScoped<IModelRepository, ModelRepository>();
+builder.Services.AddScoped<ICarRepository, CarRepository>();
 
 var app = builder.Build();
 

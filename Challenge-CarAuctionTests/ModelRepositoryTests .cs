@@ -1,5 +1,5 @@
 using ChallengeCarAuction;
-using ChallengeCarAuction.Data.Repository;
+using ChallengeCarAuction.Data;
 using ChallengeCarAuction.Models;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,9 +1,8 @@
 ﻿using Challenge_CarAuction.Data.Repositories;
-using ChallengeCarAuction;
 using ChallengeCarAuction.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Challenge_CarAuction.Data
+namespace ChallengeCarAuction.Data
 {
     public class ManufacturerRepository : IManufacturerRepository
     {

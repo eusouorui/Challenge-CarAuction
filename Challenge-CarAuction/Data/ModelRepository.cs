@@ -2,7 +2,7 @@
 using ChallengeCarAuction.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace ChallengeCarAuction.Data.Repository
+namespace ChallengeCarAuction.Data
 {
     public class ModelRepository : IModelRepository
     {
