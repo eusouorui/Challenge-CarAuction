@@ -96,6 +96,10 @@ Soft deletes and timestamps were not implemented, but could have been.
 
 Some errors are handled via an alert box but with more time and complexity could have been added into custom .net annotations.
 
+I used datatables.net for filtering and it's performed completely in the frontend. However, any field could be searched using linq to query the database with more time to implement it.
+
+Most prohibited actions like bidding on an inactive auction are UI locked (per example, the bidding view won't show in that case) but not backend locked and that could and should also be implemented for added safety.
+
 4. Testing:
 
 This being a simple application no integration tests were performed.
