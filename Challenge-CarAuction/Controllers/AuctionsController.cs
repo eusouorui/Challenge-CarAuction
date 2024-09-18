@@ -96,6 +96,7 @@ namespace Challenge_CarAuction.Controllers
         {
             if (ModelState.IsValid)
             {
+                auction.IsActive = true;
                 _context.Add(auction);
                 var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
                 car.HasActiveAuction = true;

@@ -1,4 +1,4 @@
-﻿using ChallengeCarAuction;
+﻿using Challenge_CarAuction.Data.Repositories;
 using ChallengeCarAuction.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,17 +7,17 @@ namespace Challenge_CarAuction.Controllers
 {
     public class ManufacturersController : Controller
     {
-        private readonly AuctionDbContext _context;
+        private readonly IManufacturerRepository _manufacturerRepository;
 
-        public ManufacturersController(AuctionDbContext context)
+        public ManufacturersController(IManufacturerRepository manufacturerRepository)
         {
-            _context = context;
+            _manufacturerRepository = manufacturerRepository;
         }
 
         // GET: Manufacturers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Manufacturers.ToListAsync());
+            return View(await _manufacturerRepository.FindAllAsync());
         }
 
         // GET: Manufacturers/Details/5
@@ -28,8 +28,8 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var manufacturer = await _manufacturerRepository.FindByIdAsync(id.Value);
+
             if (manufacturer == null)
             {
                 return NotFound();
@@ -55,7 +55,7 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                    bool existsInDb = _context.Manufacturers.Any(m => m.Name.Equals(manufacturer.Name));
+                    bool existsInDb = await _manufacturerRepository.NameExistsInDb(manufacturer.Name);
 
                     if (existsInDb)
                     {
@@ -65,8 +65,7 @@ namespace Challenge_CarAuction.Controllers
                     }
                     else
                     {
-                        _context.Add(manufacturer);
-                        await _context.SaveChangesAsync();
+                        await _manufacturerRepository.AddAsync(manufacturer);
                         return RedirectToAction(nameof(Index));
                     }
                 }
@@ -86,7 +85,8 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers.FindAsync(id);
+            var manufacturer = await _manufacturerRepository.FindByIdAsync(id.Value);
+
             if (manufacturer == null)
             {
                 return NotFound();
@@ -110,12 +110,11 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                        _context.Update(manufacturer);
-                        await _context.SaveChangesAsync();
+                    await _manufacturerRepository.UpdateAsync(manufacturer);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ManufacturerExists(manufacturer.Id))
+                    if (!await _manufacturerRepository.ExistsInDb(manufacturer.Id))
                     {
                         return NotFound();
                     }
@@ -137,8 +136,7 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var manufacturer = await _context.Manufacturers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var manufacturer = await _manufacturerRepository.FindByIdAsync(id.Value);
             if (manufacturer == null)
             {
                 return NotFound();
@@ -152,19 +150,9 @@ namespace Challenge_CarAuction.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var manufacturer = await _context.Manufacturers.FindAsync(id);
-            if (manufacturer != null)
-            {
-                _context.Manufacturers.Remove(manufacturer);
-            }
+            await _manufacturerRepository.DeleteAsync(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ManufacturerExists(int id)
-        {
-            return _context.Manufacturers.Any(e => e.Id == id);
         }
     }
 }

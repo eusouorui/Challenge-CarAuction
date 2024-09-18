@@ -7,6 +7,7 @@ namespace ChallengeCarAuction.Models
         [Key]
         public int Id { get; set; }
 
+        [Range(100, 10000000)]
         public decimal Value { get; set; }
 
         // External values

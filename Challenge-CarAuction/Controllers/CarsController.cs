@@ -68,6 +68,23 @@ namespace Challenge_CarAuction.Controllers
 
             if (ModelState.IsValid)
             {
+                if(car.ModelYear < 1970)
+                {
+                    ViewBag.AlertMessage = "The car must be newer than 1970.";
+                    return View(car);
+                }
+                else if(car.ModelYear > DateTime.Now.Year)
+                {
+                    ViewBag.AlertMessage = "Car year should be until current year";
+                    return View(car);
+                }
+
+                //if(car.StartingBid <= 0)
+                //{
+                //    ViewBag.AlertMessage = "The car must have a valid Starting Bid";
+                //    return View(car);
+                //}
+
                 var errorMessage = ValidateValuesByVehicleType(car);
                 if (!string.IsNullOrEmpty(errorMessage))
                 {

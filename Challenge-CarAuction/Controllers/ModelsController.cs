@@ -1,4 +1,5 @@
-﻿using ChallengeCarAuction;
+﻿using Challenge_CarAuction.Data.Repositories;
+using ChallengeCarAuction;
 using ChallengeCarAuction.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,18 +9,19 @@ namespace Challenge_CarAuction.Controllers
 {
     public class ModelsController : Controller
     {
-        private readonly AuctionDbContext _context;
+        private readonly IModelRepository _modelRepository;
+        private readonly IManufacturerRepository _manufacturerRepository;
 
-        public ModelsController(AuctionDbContext context)
+        public ModelsController(IModelRepository modelRepository, IManufacturerRepository manufacturerRepository)
         {
-            _context = context;
+            _modelRepository = modelRepository;
+            _manufacturerRepository = manufacturerRepository;
         }
 
         // GET: Models
         public async Task<IActionResult> Index()
         {
-            var auctionDbContext = _context.Models.Include(m => m.Manufacturer);
-            return View(await auctionDbContext.ToListAsync());
+            return View(await _modelRepository.FindAllWithManufacturersAsync());
         }
 
         // GET: Models/Details/5
@@ -30,9 +32,8 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var model = await _context.Models
-                .Include(m => m.Manufacturer)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var model = _modelRepository.FindByIdWithManufacturerAsync(id.Value).Result;
+
             if (model == null)
             {
                 return NotFound();
@@ -44,7 +45,7 @@ namespace Challenge_CarAuction.Controllers
         // GET: Models/Create
         public IActionResult Create()
         {
-            ViewData["Manufacturers"] = GetSelectListOfManufacturers();
+            ViewData["Manufacturers"] = GetSelectListOfManufacturers().Result;
             return View();
         }
 
@@ -57,11 +58,11 @@ namespace Challenge_CarAuction.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(model);
-                await _context.SaveChangesAsync();
+                await _modelRepository.AddAsync(model);
+               
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "Id", "Id", model.ManufacturerId);
+            ViewData["ManufacturerId"] = new SelectList(await _modelRepository.FindAllAsync(), "Id", "Id", model.ManufacturerId);
             return View(model);
         }
 
@@ -73,13 +74,13 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var model = await _context.Models.FindAsync(id);
+            var model = await _modelRepository.FindByIdAsync(id.Value);
             if (model == null)
             {
                 return NotFound();
             }
 
-            ViewData["Manufacturers"] = GetSelectListOfManufacturers();
+            ViewData["Manufacturers"] = GetSelectListOfManufacturers().Result;
             return View(model);
         }
 
@@ -99,12 +100,11 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
+                    await _modelRepository.UpdateAsync(model);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ModelExists(model.Id))
+                    if (!await _modelRepository.ExistsAsync(model.Id))
                     {
                         return NotFound();
                     }
@@ -115,7 +115,7 @@ namespace Challenge_CarAuction.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Manufacturers"] = GetSelectListOfManufacturers();
+            ViewData["Manufacturers"] = GetSelectListOfManufacturers().Result;
             return View(model);
         }
 
@@ -127,9 +127,7 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var model = await _context.Models
-                .Include(m => m.Manufacturer)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var model = await _modelRepository.FindByIdWithManufacturerAsync(id.Value);
             if (model == null)
             {
                 return NotFound();
@@ -143,25 +141,17 @@ namespace Challenge_CarAuction.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var model = await _context.Models.FindAsync(id);
-            if (model != null)
-            {
-                _context.Models.Remove(model);
-            }
 
-            await _context.SaveChangesAsync();
+            await _modelRepository.DeleteAsync(id);
+
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ModelExists(int id)
-        {
-            return _context.Models.Any(e => e.Id == id);
-        }
-
-        private List<SelectListItem> GetSelectListOfManufacturers()
+        private async Task<List<SelectListItem>> GetSelectListOfManufacturers()
         {
             var manufacturers = new List<SelectListItem>();
-            foreach (var item in _context.Manufacturers)
+            var fetchedManufacturers = await _manufacturerRepository.FindAllAsync();
+            foreach (var item in fetchedManufacturers)
             {
                 manufacturers.Add(new SelectListItem { Text = item.Name, Value = item.Id.ToString() });
             }
