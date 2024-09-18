@@ -94,6 +94,8 @@ Also, bids being under the "details" option in the Auction is not optimal as wel
 
 Soft deletes and timestamps were not implemented, but could have been.
 
+Some errors are handled via an alert box but with more time and complexity could have been added into custom .net annotations.
+
 4. Testing:
 
 This being a simple application no integration tests were performed.
