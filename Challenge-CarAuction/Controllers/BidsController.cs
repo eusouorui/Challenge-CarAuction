@@ -1,17 +1,23 @@
-﻿using ChallengeCarAuction;
+﻿using Challenge_AuctionAuction.Data.Repositories;
+using Challenge_CarAuction.Data.Repositories;
 using ChallengeCarAuction.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace Challenge_CarAuction.Controllers
 {
     public class BidsController : Controller
     {
-        private readonly AuctionDbContext _context;
+        private readonly IBidRepository _bidRepository;
+        private readonly IAuctionRepository _auctionRepository;
+        private readonly ICarRepository _carRepository;
 
-        public BidsController(AuctionDbContext context)
+        public BidsController(IBidRepository bidRepository,
+                              IAuctionRepository auctionRepository,
+                              ICarRepository carRepository)
         {
-            _context = context;
+            _bidRepository = bidRepository;
+            _auctionRepository = auctionRepository;
+            _carRepository = carRepository;
         }
 
         // POST: Bids/Create
@@ -23,9 +29,9 @@ namespace Challenge_CarAuction.Controllers
         {
             if (ModelState.IsValid)
             {
-                var startingBid = _context.Cars.FirstOrDefault(c=> c.Id == _context.Auctions.FirstOrDefault(a => a.Id == bid.AuctionId).CarId).StartingBid;
+                var startingBid = _carRepository.FindByIdAsync(_auctionRepository.FindByIdAsync(bid.AuctionId).Result.CarId).Result.StartingBid;
 
-                if (_context.Bids.Any(b => b.AuctionId == bid.AuctionId && b.Value > bid.Value))
+                if (await _bidRepository.CheckForInvaldiBidsForGivenAuction(bid))
                 {
                     TempData["AlertMessage"] = "Bid must be higher than the current highest bid.";
                 }
@@ -35,8 +41,7 @@ namespace Challenge_CarAuction.Controllers
                 }
                 else
                 {
-                    _context.Add(bid);
-                    await _context.SaveChangesAsync();
+                    _bidRepository.AddAsync(bid);
                 }
             }
             return Redirect("/Auctions/Details/" + bid.AuctionId);

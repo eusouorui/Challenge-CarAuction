@@ -1,6 +1,5 @@
 ﻿using Challenge_AuctionAuction.Data.Repositories;
 using ChallengeCarAuction;
-using ChallengeCarAuction.Data;
 using ChallengeCarAuction.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -96,7 +95,7 @@ namespace Challenge_CarAuctionTests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(auctionId, result.Id);
-            Assert.Equal(carId, result.CarId); 
+            Assert.Equal(carId, result.CarId);
         }
 
         [Fact]
@@ -141,7 +140,7 @@ namespace Challenge_CarAuctionTests
             }
 
             // Act
-            auction.IsActive = false;  
+            auction.IsActive = false;
             using (var context = CreateContext())
             {
                 var repository = new AuctionRepository(context);
@@ -153,7 +152,7 @@ namespace Challenge_CarAuctionTests
             {
                 var updatedAuction = await context.Auctions.FindAsync(auctionId);
                 Assert.NotNull(updatedAuction);
-                Assert.False(updatedAuction.IsActive);  
+                Assert.False(updatedAuction.IsActive);
             }
         }
 
@@ -191,7 +190,7 @@ namespace Challenge_CarAuctionTests
             using (var context = CreateContext())
             {
                 var repository = new AuctionRepository(context);
-                exists = await repository.ExistsInDb(GetRandomId());  // Test for a random id not in the DB
+                exists = await repository.ExistsInDb(GetRandomId());  
             }
 
             // Assert
