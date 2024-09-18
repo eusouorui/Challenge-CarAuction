@@ -1,4 +1,6 @@
-﻿using ChallengeCarAuction;
+﻿using Challenge_AuctionAuction.Data.Repositories;
+using Challenge_CarAuction.Data.Repositories;
+using ChallengeCarAuction;
 using ChallengeCarAuction.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,20 +10,32 @@ namespace Challenge_CarAuction.Controllers
 {
     public class AuctionsController : Controller
     {
-        private readonly AuctionDbContext _context;
+        private readonly IAuctionRepository _auctionRepository;
+        private readonly ICarRepository _carRepository;
+        private readonly IModelRepository _modelRepository;
+        private readonly IManufacturerRepository _manufacturerRepository;
+        private readonly IBidRepository _bidRepository;
 
-        public AuctionsController(AuctionDbContext context)
+        public AuctionsController(IAuctionRepository auctionRepository,
+                                  ICarRepository carRepository,
+                                  IModelRepository modelRepository,
+                                  IManufacturerRepository manufacturerRepository,
+                                  IBidRepository bidRepository)
         {
-            _context = context;
+            _auctionRepository = auctionRepository;
+            _carRepository = carRepository;
+            _modelRepository = modelRepository;
+            _manufacturerRepository = manufacturerRepository;
+            _bidRepository = bidRepository;
         }
 
         // GET: Auctions
         public async Task<IActionResult> Index()
         {
-            var auctionDbContext = _context.Auctions.Include(a => a.Car);
-            var cars = _context.Cars.ToList();
-            var manufacturers = _context.Manufacturers.ToList();
-            var models = _context.Models.ToList();
+            var auctionDbContext = await _auctionRepository.FindAllWithCarAsync();
+            var cars = await _carRepository.FindAllAsync();
+            var manufacturers = await _manufacturerRepository.FindAllAsync();
+            var models = await _modelRepository.FindAllAsync();
             var carInfoList = new List<string>();
 
             // todo rd make this a method maybe
@@ -43,7 +57,7 @@ namespace Challenge_CarAuction.Controllers
 
             ViewData["CarInfo"] = carInfoList;
 
-            return View(await auctionDbContext.ToListAsync());
+            return View(auctionDbContext);
         }
 
         // GET: Auctions/Details/5
@@ -54,22 +68,20 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var auction = await _context.Auctions
-                .Include(a => a.Car)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var auction = await _auctionRepository.FindByIdWithCarAsync(id.Value);
 
             if (auction == null)
             {
                 return NotFound();
             }
 
-            auction.AuctionBids = _context.Bids.Where(b => b.AuctionId == auction.Id).ToList();
+            auction.AuctionBids = _bidRepository.FindBidsByAuctionId(auction.Id).Result.ToList();
 
-            auction.Car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId) ?? new Car();
-            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault() ?? new Model();
-            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault() ?? new Manufacturer();
+            auction.Car = await _carRepository.FindByIdAsync(auction.CarId);
+            auction.Car.Model = await _modelRepository.FindByIdAsync(auction.Car.ModelId);
+            auction.Car.Model.Manufacturer = await _manufacturerRepository.FindByIdAsync(auction.Car.Model.ManufacturerId);
 
-            auction.Car.Model.Name = $"{manufacturer.Name} {model.Name}";
+            auction.Car.Model.Name = $"{auction.Car.Model.Manufacturer.Name} {auction.Car.Model.Name}";
 
             var AlertMessage = TempData["AlertMessage"] as string;
 
@@ -83,7 +95,7 @@ namespace Challenge_CarAuction.Controllers
         // GET: Auctions/Create
         public IActionResult Create()
         {
-            ViewData["CarId"] = GetSelectListOfModels();
+            ViewData["CarId"] = GetSelectListOfModels().Result;
             return View();
         }
 
@@ -97,11 +109,13 @@ namespace Challenge_CarAuction.Controllers
             if (ModelState.IsValid)
             {
                 auction.IsActive = true;
-                _context.Add(auction);
-                var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
+
+                await _auctionRepository.AddAsync(auction);
+
+                var car = await _carRepository.FindByIdAsync(auction.CarId);
                 car.HasActiveAuction = true;
-                _context.Update(car);
-                await _context.SaveChangesAsync();
+
+                await _carRepository.UpdateAsync(car);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -116,19 +130,20 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var auction = await _context.Auctions.FindAsync(id);
+            var auction = await _auctionRepository.FindByIdAsync(id.Value);
             if (auction == null)
             {
                 return NotFound();
             }
 
-            var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
-            car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
-            car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
+            var car = await _carRepository.FindByIdAsync(auction.CarId);
+            car.Model = await _modelRepository.FindByIdAsync(car.Id);
+            car.Model.Manufacturer = await _manufacturerRepository.FindByIdAsync(car.Model.ManufacturerId);
 
-            ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name, Value = car.Id.ToString() } };
 
-            ViewData["IsActive"] = CheckIfCarHasActiveAcution(auction) && !auction.IsActive;
+            ViewData["CarId"] = new List<SelectListItem> { new() { Text = car.Model.Manufacturer.Name + " " + car.Model.Name, Value = car.Id.ToString() } };
+
+            ViewData["IsActive"] = CheckIfCarHasActiveAcution(auction).Result && !auction.IsActive;
             return View(auction);
         }
 
@@ -144,12 +159,13 @@ namespace Challenge_CarAuction.Controllers
                 return NotFound();
             }
 
-            var car = _context.Cars.Where(c => c.Id.Equals(auction.CarId)).FirstOrDefault();
+            var car = await _carRepository.FindByIdAsync(auction.CarId);
 
             if (car != null) 
             {
-                car.Model = _context.Models.Where(m => m.Id == car.ModelId)?.FirstOrDefault();
-                car.Model.Manufacturer = _context.Manufacturers.Where(m => m.Id == car.Model.ManufacturerId)?.FirstOrDefault();
+                car.Model = await _modelRepository.FindByIdAsync(car.ModelId);
+                car.Model.Manufacturer = await _manufacturerRepository.FindByIdAsync(car.Model.ManufacturerId);
+
                 ViewData["CarId"] = new List<SelectListItem> { new SelectListItem { Text = car.Model.Manufacturer.Name + " " + car.Model.Name, Value = car.Id.ToString() } };
             }
 
@@ -157,15 +173,13 @@ namespace Challenge_CarAuction.Controllers
             {
                 try
                 {
-                    _context.Update(auction);
+                    await _auctionRepository.UpdateAsync(auction);
                     car.HasActiveAuction = auction.IsActive;
-                    _context.Update(car);
-                    await _context.SaveChangesAsync();
-
+                    await _carRepository.UpdateAsync(car);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AuctionExists(auction.Id))
+                    if (!await _auctionRepository.ExistsInDb(auction.Id))
                     {
                         return NotFound();
                     }
@@ -179,65 +193,11 @@ namespace Challenge_CarAuction.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Auctions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        private async Task<List<SelectListItem>> GetSelectListOfModels()
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var auction = await _context.Auctions
-                .Include(a => a.Car)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (auction == null)
-            {
-                return NotFound();
-            }
-
-            var model = _context.Models.Where(c => c.Id == auction.Car.ModelId).FirstOrDefault();
-            var manufacturer = _context.Manufacturers.Where(m => m.Id == model.ManufacturerId).FirstOrDefault();
-
-            auction.Car.Model.Name = $"{manufacturer.Name} {model.Name}";
-
-            return View(auction);
-        }
-
-        // POST: Auctions/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var auction = await _context.Auctions.FindAsync(id);
-            if (auction != null)
-            {
-                _context.Auctions.Remove(auction);
-            }
-
-            if (auction.IsActive)
-            {
-                var car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
-                if (car.HasActiveAuction == true)
-                {
-                    car.HasActiveAuction = false;
-                    _context.Update(car);
-                }
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool AuctionExists(int id)
-        {
-            return _context.Auctions.Any(e => e.Id == id);
-        }
-
-        private List<SelectListItem> GetSelectListOfModels()
-        {
-            var cars = _context.Cars.ToList();
-            var manufacturers = _context.Manufacturers.ToList();
-            var models = _context.Models.ToList();
+            var cars = await _carRepository.FindAllAsync();
+            var manufacturers = await _manufacturerRepository.FindAllAsync();
+            var models = await _modelRepository.FindAllAsync();
 
             var selectListView = new List<SelectListItem>();
 
@@ -261,9 +221,9 @@ namespace Challenge_CarAuction.Controllers
             return selectListView;
         }
 
-        private bool CheckIfCarHasActiveAcution(Auction auction)
+        private async Task<bool> CheckIfCarHasActiveAcution(Auction auction)
         {
-            var car = _context.Cars.FirstOrDefault(c => c.Id == auction.CarId);
+            var car = await _carRepository.FindByIdAsync(auction.Id);
 
             return car.HasActiveAuction == true;
         }

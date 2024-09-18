@@ -16,7 +16,6 @@ namespace ChallengeCarAuction.Data
         public async Task<IEnumerable<Car>> FindAllAsync()
         {
             return await _context.Cars
-                //.Include(c => c.Model)
                 .ToListAsync();
         }
 

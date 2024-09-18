@@ -1,3 +1,4 @@
+using Challenge_AuctionAuction.Data.Repositories;
 using Challenge_CarAuction.Data.Repositories;
 using ChallengeCarAuction;
 using ChallengeCarAuction.Data;
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<AuctionDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
 builder.Services.AddScoped<IModelRepository, ModelRepository>();
 builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+builder.Services.AddScoped<IBidRepository, BidRepository>();
 
 var app = builder.Build();
 
